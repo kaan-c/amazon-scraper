@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gocolly/colly"
+	"github.com/gorilla/mux"
 	"github.com/robfig/cron"
 )
 
@@ -19,7 +21,13 @@ type Product struct {
 	Price float64 `json:"price"`
 }
 
-func main() {
+func homePage(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Welcome to the HomePage!")
+	fmt.Println("Endpoint Hit: homePage")
+	vars := mux.Vars(r)
+	address := vars["address"]
+	log.Println("address is:" + address)
+
 	allProducts := make([]Product, 0)
 
 	cronJob := cron.New()
@@ -58,10 +66,20 @@ func main() {
 		enc.Encode(allProducts)
 
 		writeJSON(allProducts)
-		collector.Visit("https://www.amazon.com.tr/deal/7b0d0301?showVariations=true&smid=A1UNQM1SR2CHM&pf_rd_r=X5EDD9E248NAS06S3GVC&pf_rd_p=6c9a22ab-31e0-4aec-ad02-11e5945c72a4&pd_rd_r=33e42bb7-1f31-4108-a90e-22b8a0699969&pd_rd_w=jOmCO&pd_rd_wg=cytiS&ref_=pd_gw_unk")
+		collector.Visit("https://www.amazon.com.tr/gp/bestsellers/?ref_=nav_em_cs_bestsellers_0_1_1_2" + address)
 	})
 	cronJob.Start()
 	time.Sleep(time.Second * 100)
+}
+
+func handleRequests() {
+	myRouter := mux.NewRouter().StrictSlash(true)
+	myRouter.HandleFunc("/address/{address}", homePage)
+	log.Fatal(http.ListenAndServe(":10000", myRouter))
+}
+
+func main() {
+	handleRequests()
 }
 
 func writeJSON(data []Product) {
