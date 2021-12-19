@@ -1,18 +1,19 @@
-import logo from './logo.svg';
 import './App.css';
-import React from 'react';
+import React, { } from 'react';
 
 class pageComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {address: "", productList: []};
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this); 
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSelectProduct = this.handleProductSelect.bind(this);
   }
   handleApiOutput(data) {
     let productList = [];
     data.map(dataRow => {
-      productList.push({"title": dataRow.title, "price": dataRow.price});
+      productList.push({"title": dataRow.title, "price": dataRow.price, "selected": false});
+      return productList;
     });
     this.setState({"address": this.state.address, "productList": productList});
   }
@@ -31,6 +32,15 @@ class pageComponent extends React.Component {
   handleChange(event) {
     this.setState({address: event.target.value});  
   }
+  handleProductSelect(event, index) {
+    const updatedProduct = {"title": this.state.productList[index].title, 
+                            "price": this.state.productList[index].price, 
+                            "selected": event.target.checked};
+    this.setState(prevState => {
+      prevState.productList[index] = updatedProduct;
+      return { prevState };
+    });
+  }
 
   render() {
     return (
@@ -44,7 +54,7 @@ class pageComponent extends React.Component {
       </form>
       <div>
         {this.state.productList.map((item, index) => (
-          <p><input type="checkbox" /><label key={index}>{item.title} {item.price}</label></p>
+          <p><input type="checkbox" onChange={(event) => this.handleProductSelect(event, index)} /><label key={index}>{index} {item.title} {item.price}</label></p>
         ))}
       </div>
     </div>);
