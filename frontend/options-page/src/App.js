@@ -54,7 +54,7 @@ class pageComponent extends React.Component {
       </form>
       <div>
         {this.state.productList.map((item, index) => (
-          <p><input type="checkbox" onChange={(event) => this.handleProductSelect(event, index)} /><label key={index}>{index} {item.title} {item.price}</label></p>
+          <p><input type="checkbox" onChange={(event) => this.handleProductSelect(event, index)} /><label key={index}>{item.title} {item.price}</label></p>
         ))}
       </div>
     </div>);
